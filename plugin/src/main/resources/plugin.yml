@@ -1,0 +1,29 @@
+name: DailyRankingBoard
+main: xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin
+api-version: 1.13
+version: 1.0.0
+commands:
+  #dailyranking:
+  #  permission: "dailyrankingboard.command"
+  #  aliases: ["dr", "ranking", "dailyrankingboard"]
+permissions:
+  dailyrankingboard.*:
+    description: "Gives access to all DailyRankingBoard commands"
+    children:
+      dailyrankingboard.command: true
+      dailyrankingboard.admin: true
+      dailyrankingboard.games.remove: true
+      dailyrankingboard.games.add: true
+  dailyrankingboard.command:
+    description: "A base permission needed to execute the command"
+  dailyrankingboard.admin:
+    description: "Access to all commands"
+    default: false
+    children:
+      - dailyrankingboard.games.remove
+  dailyrankingboard.games.remove:
+    default: false
+    description: "Permission to remove game"
+  dailyrankingboard.games.add:
+    default: false
+    description: "Permission to add game"
