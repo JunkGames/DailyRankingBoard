@@ -11,7 +11,10 @@ import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.schedule
 
 object JoinLobbyListener: EventListener2<PlayerJoinEvent, PlayerChangedWorldEvent> {
     override fun handle1(e: PlayerJoinEvent) {
-        checkWorld(e.player)
+        checkWorld(e.player);
+        {
+            e.player.injectPacketHandler()
+        }.schedule(1)
     }
 
     override fun handle2(e: PlayerChangedWorldEvent) {
@@ -25,7 +28,6 @@ object JoinLobbyListener: EventListener2<PlayerJoinEvent, PlayerChangedWorldEven
             } else {
                 player.getArmorStandData().destroyAll(player)
             }
-            player.injectPacketHandler()
         }.schedule(1)
     }
 }

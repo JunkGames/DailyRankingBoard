@@ -14,6 +14,11 @@ object GameManager {
         return registeredGame
     }
 
+    fun removeGame(game: Game) {
+        val registeredGame = games.find { it.game.id.equals(game.id, true) } ?: throw IllegalArgumentException("Duplicate game id: ${game.id}")
+        games.remove(registeredGame)
+    }
+
     fun getGames(): ReadonlyList<RegisteredGame> = ReadonlyList.copyOf(games)
 
     fun getAvailableGames(): ReadonlyList<RegisteredGame> = ReadonlyList.copyOf(games.filter { it.maps.isNotEmpty() })

@@ -3,8 +3,8 @@ version = parent!!.version
 
 dependencies {
     implementation(project(":api"))
-    implementation("xyz.acrylicstyle:java-util-kotlin:0.15.0")
-    implementation("xyz.acrylicstyle:minecraft-util:0.3.2")
+    implementation("xyz.acrylicstyle:java-util-kotlin:0.15.4")
+    implementation("xyz.acrylicstyle:minecraft-util:0.5.2")
     compileOnly("com.mojang:brigadier:1.0.18")
     compileOnly("org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT")
     testImplementation("org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT")

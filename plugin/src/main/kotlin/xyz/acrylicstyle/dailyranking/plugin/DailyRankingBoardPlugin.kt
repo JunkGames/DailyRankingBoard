@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
+import net.minecraft.server.v1_16_R3.ChatComponentText
 import net.minecraft.server.v1_16_R3.CommandListenerWrapper
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
@@ -16,6 +17,7 @@ import org.bukkit.plugin.ServicePriority
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.acrylicstyle.dailyranking.api.DailyRankingBoardAPI
 import xyz.acrylicstyle.dailyranking.api.util.Util.stringify
+import xyz.acrylicstyle.dailyranking.plugin.game.SerializableGame
 import xyz.acrylicstyle.dailyranking.plugin.listener.JoinLobbyListener
 import xyz.acrylicstyle.dailyranking.plugin.listener.LeaderboardListener
 import xyz.acrylicstyle.dailyranking.plugin.listener.ReregisterCommandsOnReloadListener
@@ -33,6 +35,7 @@ import java.util.logging.Logger
 class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
     companion object {
         lateinit var instance: DailyRankingBoardPlugin
+        const val DEBUG = false
     }
 
     init {
@@ -51,7 +54,7 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
         registerCompletions()
         preloadClasses()
         registerPacketHandlers()
-        if (InternalUtil.isPaper()) {
+        if (DEBUG && InternalUtil.isPaper()) {
             @Suppress("UNCHECKED_CAST")
             server.pluginManager.registerEvent(
                 Class.forName("com.destroystokyo.paper.event.server.ServerExceptionEvent") as Class<out Event>,
@@ -98,14 +101,38 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
                 .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.command") }
                 .then(literal("games")
                     .then(literal("add")
+                        .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.games.add") }
                         .then(argument("id", StringArgumentType.word())
                             .then(argument("name", StringArgumentType.word())
                                 .executes { context ->
                                     val id = StringArgumentType.getString(context, "id")
                                     val name = StringArgumentType.getString(context, "name")
-                                    context.source.bukkitSender.sendMessage("${ChatColor.GREEN}id: $id, name: $name")
+                                    try {
+                                        addGame(SerializableGame(id, name))
+                                    } catch (e: IllegalArgumentException) {
+                                        context.source.sendFailureMessage(ChatComponentText("このIDのゲームはすでに追加されています。"))
+                                        return@executes 0
+                                    }
+                                    context.source.sendMessage(ChatComponentText("${ChatColor.GREEN}ゲーム「${ChatColor.YELLOW}$name${ChatColor.GREEN}」(ID: $id)を追加しました。"), true)
                                     return@executes 0
                                 })
+                        )
+                    )
+                    .then(literal("remove")
+                        .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.games.remove") }
+                        .then(argument("id", StringArgumentType.word())
+                            .suggests { _, builder -> getGames().filter { it.game is SerializableGame }.forEach { builder.suggest(it.game.id) }; builder.buildFuture() }
+                            .executes { context ->
+                                val id = StringArgumentType.getString(context, "id")
+                                val game = getGameOrNullById(id)?.game
+                                if (game == null || game !is SerializableGame) {
+                                    context.source.sendFailureMessage(ChatComponentText("${ChatColor.RED}無効なゲームIDか、削除できないゲームです。"))
+                                } else {
+                                    removeGame(game)
+                                    context.source.sendMessage(ChatComponentText("${ChatColor.GREEN}ゲーム「${ChatColor.YELLOW}${game.name}${ChatColor.GREEN}」(ID: $id)を削除しました。"), true)
+                                }
+                                return@executes 0
+                            }
                         )
                     )
                 )

@@ -28,6 +28,12 @@ interface DailyRankingBoardAPI {
     fun addGame(game: Game): RegisteredGame
 
     /**
+     * Removes a game from games list.
+     * @throws NoSuchElementException
+     */
+    fun removeGame(game: Game)
+
+    /**
      * @return All defined games. The returned list is immutable and cannot be modified.
      */
     fun getGames(): ReadonlyList<RegisteredGame>
@@ -79,4 +85,6 @@ interface DailyRankingBoardAPI {
      * @return location if configured, null otherwise
      */
     fun getMapSelectorLocation(): Location?
+
+    fun refreshLeaderboard()
 }

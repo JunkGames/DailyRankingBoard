@@ -21,6 +21,7 @@ permissions:
     default: false
     children:
       - dailyrankingboard.games.remove
+      - dailyrankingboard.games.add
   dailyrankingboard.games.remove:
     default: false
     description: "Permission to remove game"
