@@ -8,19 +8,17 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.server.v1_16_R3.ChatComponentText
 import net.minecraft.server.v1_16_R3.ICompletionProvider
 import xyz.acrylicstyle.dailyranking.api.game.RegisteredGame
-import xyz.acrylicstyle.dailyranking.plugin.game.GameManager
+import xyz.acrylicstyle.dailyranking.api.map.GameMap
 import java.util.concurrent.CompletableFuture
 
-object GameArgument {
-    private val INVALID_GAME_ID = DynamicCommandExceptionType { ChatComponentText("ゲームが見つかりません: $it") }
+object MapArgument {
+    private val INVALID_MAP_ID = DynamicCommandExceptionType { ChatComponentText("マップが見つかりません: $it") }
 
-    fun gameId(): StringArgumentType = StringArgumentType.word()
-
-    fun get(context: CommandContext<*>, name: String): RegisteredGame =
+    fun get(game: RegisteredGame, context: CommandContext<*>, name: String): GameMap =
         StringArgumentType.getString(context, name).let { s ->
-            GameManager.getGames().find { it.game.id.lowercase() == s.lowercase() } ?: throw INVALID_GAME_ID.create(s)
+            game.maps.find { it.id.lowercase() == s.lowercase() } ?: throw INVALID_MAP_ID.create(s)
         }
 
-    fun fillSuggestions(builder: SuggestionsBuilder): CompletableFuture<Suggestions> =
-        ICompletionProvider.b(GameManager.getGames().map { it.id }, builder)
+    fun fillSuggestions(context: CommandContext<*>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> =
+        ICompletionProvider.b(GameArgument.get(context, "game").maps.map { it.id }, builder)
 }

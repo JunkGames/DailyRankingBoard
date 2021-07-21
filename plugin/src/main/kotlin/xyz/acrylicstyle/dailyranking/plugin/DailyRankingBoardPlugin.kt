@@ -1,6 +1,7 @@
 package xyz.acrylicstyle.dailyranking.plugin
 
 import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
@@ -17,7 +18,10 @@ import org.bukkit.plugin.ServicePriority
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.acrylicstyle.dailyranking.api.DailyRankingBoardAPI
 import xyz.acrylicstyle.dailyranking.api.util.Util.stringify
+import xyz.acrylicstyle.dailyranking.plugin.argument.GameArgument
+import xyz.acrylicstyle.dailyranking.plugin.argument.MapArgument
 import xyz.acrylicstyle.dailyranking.plugin.game.SerializableGame
+import xyz.acrylicstyle.dailyranking.plugin.game.SerializableMap
 import xyz.acrylicstyle.dailyranking.plugin.listener.JoinLobbyListener
 import xyz.acrylicstyle.dailyranking.plugin.listener.LeaderboardListener
 import xyz.acrylicstyle.dailyranking.plugin.listener.ReregisterCommandsOnReloadListener
@@ -118,21 +122,63 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
                                 })
                         )
                     )
-                    .then(literal("remove")
-                        .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.games.remove") }
-                        .then(argument("id", StringArgumentType.word())
-                            .suggests { _, builder -> getGames().filter { it.game is SerializableGame }.forEach { builder.suggest(it.game.id) }; builder.buildFuture() }
+                )
+                .then(literal("game")
+                    .then(argument("game", GameArgument.gameId())
+                        .suggests { _, builder -> GameArgument.fillSuggestions(builder) }
+                        .then(literal("remove")
+                            .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.games.remove") }
                             .executes { context ->
-                                val id = StringArgumentType.getString(context, "id")
-                                val game = getGameOrNullById(id)?.game
-                                if (game == null || game !is SerializableGame) {
-                                    context.source.sendFailureMessage(ChatComponentText("${ChatColor.RED}無効なゲームIDか、削除できないゲームです。"))
+                                val game = GameArgument.get(context, "game")
+                                if (game.game !is SerializableGame) {
+                                    context.source.sendFailureMessage(ChatComponentText("${ChatColor.RED}削除できないゲームです。"))
                                 } else {
-                                    removeGame(game)
-                                    context.source.sendMessage(ChatComponentText("${ChatColor.GREEN}ゲーム「${ChatColor.YELLOW}${game.name}${ChatColor.GREEN}」(ID: $id)を削除しました。"), true)
+                                    removeGame(game.game)
+                                    context.source.sendMessage(ChatComponentText("${ChatColor.GREEN}ゲーム「${ChatColor.YELLOW}${game.name}${ChatColor.GREEN}」(ID: ${game.id})を削除しました。"), true)
                                 }
                                 return@executes 0
                             }
+                        )
+                        .then(literal("maps")
+                            .then(literal("add")
+                                .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.maps.add") }
+                                .then(argument("id", StringArgumentType.word())
+                                    .then(argument("name", StringArgumentType.greedyString())
+                                        .executes { context ->
+                                            val game = GameArgument.get(context, "game")
+                                            val id = StringArgumentType.getString(context, "id")
+                                            val name = StringArgumentType.getString(context, "name")
+                                            try {
+                                                game.registerMap(SerializableMap(id, name, mutableMapOf()))
+                                            } catch (e: IllegalArgumentException) {
+                                                context.source.sendFailureMessage(ChatComponentText("このIDのマップはすでに追加されています。"))
+                                                return@executes 0
+                                            }
+                                            context.source.sendMessage(ChatComponentText("${ChatColor.GREEN}マップ「${ChatColor.YELLOW}$name${ChatColor.GREEN}」(ID: $id)を追加しました。"), true)
+                                            return@executes 0
+                                        }
+                                    )
+                                )
+                            )
+                        )
+                        .then(literal("map")
+                            .then(argument("map", StringArgumentType.word())
+                                .suggests { context, builder -> MapArgument.fillSuggestions(context, builder) }
+                                .then(literal("remove")
+                                    .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.maps.remove") }
+                                    .executes { context ->
+                                        val game = GameArgument.get(context, "game")
+                                        val map = MapArgument.get(game, context, "map")
+                                        if (map !is SerializableMap) {
+                                            context.source.sendFailureMessage(ChatComponentText("${ChatColor.RED}削除できないマップです。"))
+                                        } else {
+                                            game.maps.remove(map)
+                                            context.source.sendMessage(ChatComponentText("${ChatColor.GREEN}マップ「${ChatColor.YELLOW}${game.name}${ChatColor.GREEN}」(ID: ${game.id})を削除しました。"), true)
+                                        }
+                                        return@executes 0
+                                    }
+                                )
+                            )
                         )
                     )
                 )
@@ -174,6 +220,9 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
         LiteralArgumentBuilder.literal(name)
 
     private fun <T> argument(name: String, type: ArgumentType<T>): RequiredArgumentBuilder<CommandListenerWrapper, T> =
+        RequiredArgumentBuilder.argument(name, type)
+
+    private fun <T> argument(name: String, type: ((StringReader) -> T)): RequiredArgumentBuilder<CommandListenerWrapper, T> =
         RequiredArgumentBuilder.argument(name, type)
 
     override fun getLogger(): Logger = super<JavaPlugin>.getLogger()

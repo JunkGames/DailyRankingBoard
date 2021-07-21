@@ -20,6 +20,7 @@ permissions:
     description: "Access to all commands"
     default: false
     children:
+      - dailyrankingboard.games.command
       - dailyrankingboard.games.remove
       - dailyrankingboard.games.add
   dailyrankingboard.games.remove:

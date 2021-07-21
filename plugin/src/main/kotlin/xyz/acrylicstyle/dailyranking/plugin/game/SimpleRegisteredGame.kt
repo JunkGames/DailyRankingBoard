@@ -8,6 +8,7 @@ class SimpleRegisteredGame(override val game: Game): RegisteredGame {
     override val maps = ArrayList<GameMap>()
 
     override fun registerMap(map: GameMap): GameMap {
+        if (maps.any { it.id.equals(map.id, true) }) throw IllegalArgumentException("Duplicate map: ${map.id}")
         maps.add(map)
         return map
     }
