@@ -38,6 +38,7 @@ import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.getArmorStandData
 import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.runOnMain
 import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.schedule
 import xyz.acrylicstyle.dailyranking.plugin.util.PlayerArmorStandData
+import xyz.acrylicstyle.mcutil.mojang.MojangAPI
 import java.time.LocalDateTime
 import java.util.Timer
 import java.util.TimerTask
@@ -319,13 +320,19 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
                                     )
                                     .then(literal("remove")
                                         .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.maps.leaderboard.remove") }
-                                        .then(argument("player", ArgumentEntity.c())
+                                        .then(argument("player", StringArgumentType.word())
                                             .executes { context ->
                                                 val game = GameArgument.get(context, "game")
                                                 val map = MapArgument.get(game, context, "map")
-                                                val player = ArgumentEntity.e(context, "player")
-                                                map.removeLeaderboardEntry(player.uniqueID)
-                                                refreshLeaderboard()
+                                                val id = StringArgumentType.getString(context, "player")
+                                                MojangAPI.getUniqueId(id)
+                                                    .then { uuid ->
+                                                        map.removeLeaderboardEntry(uuid)
+                                                        refreshLeaderboard()
+                                                        context.source.sendMessage(ChatComponentText("${ChatColor.GOLD}${id}${ChatColor.GREEN}の記録をすべて削除しました。"), true)
+                                                    }.onCatch {
+                                                        context.source.sendFailureMessage(ChatComponentText("プレイヤーが見つかりません"))
+                                                    }
                                                 return@executes 0
                                             }
                                         )
