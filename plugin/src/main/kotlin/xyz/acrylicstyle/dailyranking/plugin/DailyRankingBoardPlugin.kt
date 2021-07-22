@@ -102,8 +102,8 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
     }
 
     private fun resetLeaderboard() {
-        GameManager.getGames().filter { it.game is SerializableGame }.forEach {
-            it.maps.filterIsInstance<SerializableMap>().forEach { map -> map.clearLeaderboardEntries() }
+        GameManager.getGames().forEach {
+            it.maps.forEach { map -> map.clearLeaderboardEntries() }
         }
     }
 
