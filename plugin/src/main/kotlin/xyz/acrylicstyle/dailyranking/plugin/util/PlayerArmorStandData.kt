@@ -105,7 +105,7 @@ class PlayerArmorStandData(private val uuid: UUID) {
                     return@let
                 }
                 MojangAPI.getName(entry.key).then { name ->
-                    leaderboardEntries[i].setText("${ChatColor.YELLOW}${i + 1}. ${ChatColor.WHITE}$name ${ChatColor.GRAY}- ${ChatColor.YELLOW}${map.getValueToStringFunction(entry.value)}")
+                    leaderboardEntries[i].setText("${ChatColor.YELLOW}${i + 1}. ${ChatColor.WHITE}$name ${ChatColor.GRAY}- ${ChatColor.YELLOW}${registeredGame.game.getValueToStringFunction(entry.value)}")
                 }.onCatch { throwable ->
                     instance.logger.warning("Could not get the player name of ${entry.key}")
                     throwable.printStackTrace()
@@ -118,7 +118,7 @@ class PlayerArmorStandData(private val uuid: UUID) {
                     leaderboardEntries[10].setText("")
                 } else {
                     val rank = entries.indexOfFirst { entry -> entry.key == uuid } + 1
-                    leaderboardEntries[10].setText("${ChatColor.YELLOW}${ChatColor.BOLD}$rank. ${ChatColor.WHITE}${ChatColor.BOLD}$name ${ChatColor.GRAY}- ${ChatColor.YELLOW}${ChatColor.BOLD}${map.getValueToStringFunction(value)}")
+                    leaderboardEntries[10].setText("${ChatColor.YELLOW}${ChatColor.BOLD}$rank. ${ChatColor.WHITE}${ChatColor.BOLD}$name ${ChatColor.GRAY}- ${ChatColor.YELLOW}${ChatColor.BOLD}${registeredGame.game.getValueToStringFunction(value)}")
                 }
             }.onCatch { throwable ->
                 instance.logger.warning("Could not get the player name of $uuid")

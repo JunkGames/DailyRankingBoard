@@ -9,6 +9,7 @@ import net.minecraft.server.v1_16_R3.ChatComponentText
 import net.minecraft.server.v1_16_R3.ICompletionProvider
 import xyz.acrylicstyle.dailyranking.api.game.RegisteredGame
 import xyz.acrylicstyle.dailyranking.plugin.game.GameManager
+import xyz.acrylicstyle.dailyranking.plugin.game.SerializableGame
 import java.util.concurrent.CompletableFuture
 
 object GameArgument {
@@ -22,5 +23,5 @@ object GameArgument {
         }
 
     fun fillSuggestions(builder: SuggestionsBuilder): CompletableFuture<Suggestions> =
-        ICompletionProvider.b(GameManager.getGames().map { it.id }, builder)
+        ICompletionProvider.b(GameManager.getGames().filter { it.game is SerializableGame }.map { it.id }, builder)
 }

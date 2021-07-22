@@ -6,10 +6,10 @@ import xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin
 
 object ReregisterCommandsOnReloadListener: EventListener2<PluginEnableEvent, PluginDisableEvent> {
     override fun handle1(e: PluginEnableEvent) {
-        DailyRankingBoardPlugin.instance.registerCompletions()
+        DailyRankingBoardPlugin.instance.registerCommands()
     }
 
     override fun handle2(e: PluginDisableEvent) {
-        DailyRankingBoardPlugin.instance.registerCompletions()
+        DailyRankingBoardPlugin.instance.registerCommands()
     }
 }

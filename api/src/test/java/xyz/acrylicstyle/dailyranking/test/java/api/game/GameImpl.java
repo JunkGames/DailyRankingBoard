@@ -20,7 +20,13 @@ public class GameImpl implements Game {
 
     @NotNull
     @Override
-    public Map<?, ?> getAsMap() {
+    public Map<String, Object> getAsMap() {
         return Game.super.getAsMap();
+    }
+
+    @NotNull
+    @Override
+    public String getValueToStringFunction(int value) {
+        return Game.super.getValueToStringFunction(value);
     }
 }

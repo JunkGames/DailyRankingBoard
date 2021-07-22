@@ -13,7 +13,9 @@ interface Game: MapSerializable {
      */
     val name: String
 
-    override fun getAsMap(): Map<*, *> = mapOf(
+    fun getValueToStringFunction(value: Int): String = value.toString()
+
+    override fun getAsMap(): Map<String, Any> = mapOf(
         "id" to id,
         "name" to name,
     )

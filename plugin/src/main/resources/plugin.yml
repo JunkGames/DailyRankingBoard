@@ -1,31 +1,56 @@
 name: DailyRankingBoard
 main: xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin
 api-version: 1.13
-version: 1.0.0
+version: 1.1.0
 commands:
   #dailyranking:
   #  permission: "dailyrankingboard.command"
   #  aliases: ["dr", "ranking", "dailyrankingboard"]
 permissions:
-  dailyrankingboard.*:
-    description: "Gives access to all DailyRankingBoard commands"
-    children:
-      dailyrankingboard.command: true
-      dailyrankingboard.admin: true
-      dailyrankingboard.games.remove: true
-      dailyrankingboard.games.add: true
-  dailyrankingboard.command:
-    description: "A base permission needed to execute the command"
   dailyrankingboard.admin:
     description: "Access to all commands"
     default: false
     children:
-      - dailyrankingboard.games.command
-      - dailyrankingboard.games.remove
+      - dailyrankingboard.command
       - dailyrankingboard.games.add
-  dailyrankingboard.games.remove:
-    default: false
-    description: "Permission to remove game"
+      - dailyrankingboard.games.remove
+      - dailyrankingboard.games.rename
+      - dailyrankingboard.games.setformat
+      - dailyrankingboard.maps.add
+      - dailyrankingboard.maps.remove
+      - dailyrankingboard.maps.rename
+      - dailyrankingboard.maps.leaderboard.resetall
+      - dailyrankingboard.maps.leaderboard.add
+      - dailyrankingboard.maps.leaderboard.remove
+  dailyrankingboard.command:
+    description: "A base permission needed to execute the command"
   dailyrankingboard.games.add:
     default: false
-    description: "Permission to add game"
+    description: "Permission to add a game"
+  dailyrankingboard.games.remove:
+    default: false
+    description: "Permission to remove a game"
+  dailyrankingboard.games.rename:
+    default: false
+    description: "Permission to rename a game"
+  dailyrankingboard.games.setformat:
+    default: false
+    description: "Permission to rename a game"
+  dailyrankingboard.maps.add:
+    default: false
+    description: "Permission to add a map"
+  dailyrankingboard.maps.remove:
+    default: false
+    description: "Permission to remove a map"
+  dailyrankingboard.maps.rename:
+    default: false
+    description: "Permission to set format of leaderboard entry"
+  dailyrankingboard.maps.leaderboard.resetall:
+    default: false
+    description: "Permission to remove all leaderboard entries in map"
+  dailyrankingboard.maps.leaderboard.add:
+    default: false
+    description: "Permission to add a leaderboard entry"
+  dailyrankingboard.maps.leaderboard.remove:
+    default: false
+    description: "Permission to remove a leaderboard entry"

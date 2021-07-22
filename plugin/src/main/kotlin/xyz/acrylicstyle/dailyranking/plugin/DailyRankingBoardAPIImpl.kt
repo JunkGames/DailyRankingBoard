@@ -23,5 +23,5 @@ interface DailyRankingBoardAPIImpl: Plugin, DailyRankingBoardAPI {
     override fun getBoardLocation(): Location? = config.getLocation("lobby_board_location")?.clone()
     override fun getGameSelectorLocation(): Location? = config.getLocation("lobby_game_selector_location")?.clone()
     override fun getMapSelectorLocation(): Location? = config.getLocation("lobby_map_selector_location")?.clone()
-    override fun refreshLeaderboard() = Bukkit.getOnlinePlayers().forEach { it.getArmorStandData().updateAll(it) }
+    override fun refreshLeaderboard() = Bukkit.getOnlinePlayers().forEach { player -> player.getArmorStandData().let { it.updateText().then { _ -> it.updateAll(player) } } }
 }

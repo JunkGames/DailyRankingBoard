@@ -11,11 +11,15 @@ import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import util.function.ThrowableConsumer
 import util.promise.rewrite.Promise
+import util.yaml.YamlObject
 import xyz.acrylicstyle.dailyranking.api.DailyRankingBoardAPI
+import xyz.acrylicstyle.dailyranking.api.game.RegisteredGame
 import xyz.acrylicstyle.dailyranking.api.util.KVMap
 import xyz.acrylicstyle.dailyranking.api.util.Util
 import xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin
 import xyz.acrylicstyle.dailyranking.plugin.game.GameManager
+import xyz.acrylicstyle.dailyranking.plugin.game.SerializableGame
+import xyz.acrylicstyle.dailyranking.plugin.game.SerializableMap
 import xyz.acrylicstyle.dailyranking.plugin.packet.DailyRankingBoardPacketHandler
 import java.util.UUID
 
@@ -56,9 +60,11 @@ object InternalUtil {
         val pipeline = this.getChannel().pipeline();
         {
             pipeline.addBefore("packet_handler", "daily_ranking_board", DailyRankingBoardPacketHandler(this))
+            DailyRankingBoardPlugin.instance.logger.info("Injected packet handler for $name")
         } catch { _ ->
             {
                 pipeline.addBefore("packet_handler", "daily_ranking_board", DailyRankingBoardPacketHandler(this))
+                DailyRankingBoardPlugin.instance.logger.info("Injected packet handler for $name")
             }.schedule(1).onCatch {
                 DailyRankingBoardPlugin.instance.logger.warning("Failed to inject packet handler to ${this.name}")
                 it.printStackTrace()
