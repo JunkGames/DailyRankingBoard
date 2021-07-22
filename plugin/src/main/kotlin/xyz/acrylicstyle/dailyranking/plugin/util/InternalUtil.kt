@@ -1,25 +1,24 @@
 package xyz.acrylicstyle.dailyranking.plugin.util
 
+import net.blueberrymc.native_util.NativeUtil
 import net.minecraft.server.v1_16_R3.Entity
+import net.minecraft.server.v1_16_R3.MinecraftServer
 import net.minecraft.server.v1_16_R3.Packet
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.World
+import org.bukkit.craftbukkit.v1_16_R3.CraftServer
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import util.function.ThrowableConsumer
 import util.promise.rewrite.Promise
-import util.yaml.YamlObject
 import xyz.acrylicstyle.dailyranking.api.DailyRankingBoardAPI
-import xyz.acrylicstyle.dailyranking.api.game.RegisteredGame
 import xyz.acrylicstyle.dailyranking.api.util.KVMap
 import xyz.acrylicstyle.dailyranking.api.util.Util
 import xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin
 import xyz.acrylicstyle.dailyranking.plugin.game.GameManager
-import xyz.acrylicstyle.dailyranking.plugin.game.SerializableGame
-import xyz.acrylicstyle.dailyranking.plugin.game.SerializableMap
 import xyz.acrylicstyle.dailyranking.plugin.packet.DailyRankingBoardPacketHandler
 import java.util.UUID
 
@@ -63,12 +62,14 @@ object InternalUtil {
             DailyRankingBoardPlugin.instance.logger.info("Injected packet handler for $name")
         } catch { _ ->
             {
-                pipeline.addBefore("packet_handler", "daily_ranking_board", DailyRankingBoardPacketHandler(this))
-                DailyRankingBoardPlugin.instance.logger.info("Injected packet handler for $name")
-            }.schedule(1).onCatch {
-                DailyRankingBoardPlugin.instance.logger.warning("Failed to inject packet handler to ${this.name}")
-                it.printStackTrace()
-            }
+                {
+                    pipeline.addBefore("packet_handler", "daily_ranking_board", DailyRankingBoardPacketHandler(this))
+                    DailyRankingBoardPlugin.instance.logger.info("Injected packet handler for $name")
+                } catch {
+                    DailyRankingBoardPlugin.instance.logger.warning("Failed to inject packet handler to ${this.name}")
+                    it.printStackTrace()
+                }
+            }.schedule(1)
         }
     }
 
@@ -76,9 +77,11 @@ object InternalUtil {
         val pipeline = this.getChannel().pipeline();
         {
             if (pipeline.get("daily_ranking_board") != null) pipeline.remove("daily_ranking_board")
+            DailyRankingBoardPlugin.instance.logger.info("Ejected packet handler for $name")
         } catch { _ ->
             {
                 if (pipeline.get("daily_ranking_board") != null) pipeline.remove("daily_ranking_board")
+                DailyRankingBoardPlugin.instance.logger.info("Ejected packet handler for $name")
             }.schedule(1).onCatch {
                 DailyRankingBoardPlugin.instance.logger.warning("Failed to eject packet handler from ${this.name}")
                 it.printStackTrace()
@@ -142,5 +145,13 @@ object InternalUtil {
             this.playSound(this.location, Sound.BLOCK_DISPENSER_DISPENSE, 1f, 1f)
             data.updateText().then { data.updateAll(this) }
         }
+    }
+
+    private fun getTicks() = NativeUtil.getInt(MinecraftServer::class.java.getDeclaredField("ticks"), (Bukkit.getServer() as CraftServer).server)
+
+    fun isReload(): Boolean {
+        if (Bukkit.getOnlinePlayers().isNotEmpty()) return true
+        if (getTicks() > 10) return true
+        return false
     }
 }

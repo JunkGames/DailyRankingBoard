@@ -1,7 +1,10 @@
 name: DailyRankingBoard
 main: xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin
 api-version: 1.13
-version: 1.1.0
+version: 1.1.1
+load: POSTWORLD
+softdepend:
+  - Multiverse-Core
 commands:
   #dailyranking:
   #  permission: "dailyrankingboard.command"

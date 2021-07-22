@@ -4,7 +4,7 @@ version = parent!!.version
 dependencies {
     implementation(project(":api"))
     implementation("xyz.acrylicstyle:java-util-kotlin:0.15.4")
-    implementation("xyz.acrylicstyle:minecraft-util:0.5.2")
+    implementation("xyz.acrylicstyle:minecraft-util:0.5.3")
     compileOnly("com.mojang:brigadier:1.0.18")
     compileOnly("org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT")
     testImplementation("org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT")
@@ -25,6 +25,7 @@ tasks {
         }
 
         relocate("kotlin", "xyz.acrylicstyle.dailyranking.plugin.libs.kotlin")
+        relocate("util", "xyz.acrylicstyle.dailyranking.plugin.libs.util")
 
         minimize()
     }

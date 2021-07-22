@@ -22,6 +22,7 @@ import xyz.acrylicstyle.dailyranking.api.util.Util.stringify
 import xyz.acrylicstyle.dailyranking.plugin.argument.GameArgument
 import xyz.acrylicstyle.dailyranking.plugin.argument.MapArgument
 import xyz.acrylicstyle.dailyranking.plugin.configuration.GameConfigurationFile
+import xyz.acrylicstyle.dailyranking.plugin.game.GameManager
 import xyz.acrylicstyle.dailyranking.plugin.game.SerializableGame
 import xyz.acrylicstyle.dailyranking.plugin.game.SerializableMap
 import xyz.acrylicstyle.dailyranking.plugin.listener.JoinLobbyListener
@@ -31,11 +32,15 @@ import xyz.acrylicstyle.dailyranking.plugin.packet.DailyRankingBoardPacketHandle
 import xyz.acrylicstyle.dailyranking.plugin.packet.incoming.PacketPlayInUseEntityHandler
 import xyz.acrylicstyle.dailyranking.plugin.util.CommandWrapper
 import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil
+import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.addY
 import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.ejectPacketHandler
 import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.getArmorStandData
+import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.runOnMain
 import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.schedule
 import xyz.acrylicstyle.dailyranking.plugin.util.PlayerArmorStandData
-import java.io.File
+import java.time.LocalDateTime
+import java.util.Timer
+import java.util.TimerTask
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -56,7 +61,11 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
         JoinLobbyListener,
     )
 
+    private val timer = Timer()
+    var day = -1
+
     override fun onEnable() {
+        if (InternalUtil.isReload()) error("Reload detected. Please restart the server.\nLearn more why you should never reload the plugin: https://madelinemiller.dev/blog/problem-with-reload/")
         GameConfigurationFile.loadAll()
         Bukkit.getServicesManager().register(DailyRankingBoardAPI::class.java, this, this, ServicePriority.Normal)
         listeners.forEach { server.pluginManager.registerEvents(it, this) }
@@ -76,7 +85,25 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
                 this,
             )
         }
-        Bukkit.getOnlinePlayers().forEach { JoinLobbyListener.checkWorld(it) }
+        Bukkit.getOnlinePlayers().forEach { JoinLobbyListener.checkWorld(it, true) }
+        day = config.getInt("lastDay", -1)
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                if (day != LocalDateTime.now().dayOfYear) {
+                    day = LocalDateTime.now().dayOfYear
+                    config["lastDay"] = day
+                    resetLeaderboard()
+                    refreshLeaderboard()
+                    Bukkit.broadcastMessage("${ChatColor.GRAY}[${ChatColor.GOLD}DailyRanking${ChatColor.GRAY}] ${ChatColor.YELLOW}デイリーランキングがリセットされました！")
+                }
+            }
+        }, 10000L, 10000L)
+    }
+
+    private fun resetLeaderboard() {
+        GameManager.getGames().filter { it.game is SerializableGame }.forEach {
+            it.maps.filterIsInstance<SerializableMap>().forEach { map -> map.clearLeaderboardEntries() }
+        }
     }
 
     override fun onDisable() {
@@ -85,7 +112,7 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
             it.getArmorStandData().destroyAll(it)
             it.ejectPacketHandler()
         }
-        config.save(File(dataFolder, "config.yml"))
+        saveConfig()
     }
 
     private fun registerPacketHandlers() {
@@ -94,6 +121,11 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
 
     private fun preloadClasses() {
         InternalUtil.isPaper()
+        "xyz.acrylicstyle.dailyranking.api.util.ReadonlyList".tryLoadClass()
+        "xyz.acrylicstyle.dailyranking.api.util.SingletonReadonlyList".tryLoadClass()
+        "xyz.acrylicstyle.dailyranking.api.util.SingletonIterator".tryLoadClass()
+        "xyz.acrylicstyle.dailyranking.plugin.libs.kotlin.Pair".tryLoadClass()
+        "xyz.acrylicstyle.dailyranking.plugin.libs.kotlin.TuplesKt".tryLoadClass()
     }
 
     private fun String.tryLoadClass() {
@@ -306,8 +338,12 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
                 .then(literal("set")
                     .then(literal("board_location")
                         .executes { context ->
-                            val loc = context.source.h().bukkitEntity.location
-                            config["lobby_board_location"] = loc
+                            val loc = context.source.h().bukkitEntity.location.clone();
+                            {
+                                config["lobby_board_location"] = loc.addY(2.8)
+                                println(config.saveToString())
+                                saveConfig()
+                            }.runOnMain().complete()
                             PlayerArmorStandData.refreshAll()
                             context.source.bukkitSender.sendMessage("${ChatColor.GREEN}ボードの場所を設定しました。")
                             context.source.bukkitSender.sendMessage(loc.serialize().stringify())
@@ -316,8 +352,11 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
                     )
                     .then(literal("game_selector_location")
                         .executes { context ->
-                            val loc = context.source.h().bukkitEntity.location
-                            config["lobby_game_selector_location"] = loc
+                            val loc = context.source.h().bukkitEntity.location.clone();
+                            {
+                                config.set("lobby_game_selector_location", loc)
+                                saveConfig()
+                            }.runOnMain()
                             PlayerArmorStandData.refreshAll()
                             context.source.bukkitSender.sendMessage("${ChatColor.GREEN}ゲーム選択の場所を設定しました。")
                             context.source.bukkitSender.sendMessage(loc.serialize().stringify())
@@ -326,8 +365,11 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
                     )
                     .then(literal("map_selector_location")
                         .executes { context ->
-                            val loc = context.source.h().bukkitEntity.location
-                            config["lobby_map_selector_location"] = loc
+                            val loc = context.source.h().bukkitEntity.location.clone();
+                            {
+                                config["lobby_map_selector_location"] = loc
+                                saveConfig()
+                            }.runOnMain()
                             PlayerArmorStandData.refreshAll()
                             context.source.bukkitSender.sendMessage("${ChatColor.GREEN}マップ選択の場所を設定しました。")
                             context.source.bukkitSender.sendMessage(loc.serialize().stringify())

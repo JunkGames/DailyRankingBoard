@@ -18,6 +18,12 @@ interface GameMap: MapSerializable {
         entries.remove(uuid)
     }
 
+    fun clearLeaderboardEntries() {
+        val entries = getLeaderboardEntries()
+        if (entries !is MutableMap<UUID, Int>) return
+        entries.clear()
+    }
+
     object UpdateFlag {
         const val NONE = 1 shl 0 // => 0
         const val NEW_PERSONAL_RECORD = 1 shl 1 // => 2

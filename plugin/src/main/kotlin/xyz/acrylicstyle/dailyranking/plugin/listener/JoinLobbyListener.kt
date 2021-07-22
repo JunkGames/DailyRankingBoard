@@ -11,18 +11,16 @@ import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.schedule
 
 object JoinLobbyListener: EventListener2<PlayerJoinEvent, PlayerChangedWorldEvent> {
     override fun handle1(e: PlayerJoinEvent) {
-        checkWorld(e.player);
-        {
-            e.player.injectPacketHandler()
-        }.schedule(1)
+        checkWorld(e.player, true)
     }
 
     override fun handle2(e: PlayerChangedWorldEvent) {
         checkWorld(e.player)
     }
 
-    fun checkWorld(player: Player) {
+    fun checkWorld(player: Player, inject: Boolean = false) {
         {
+            if (inject) player.injectPacketHandler()
             if (player.isInWorld(DailyRankingBoardPlugin.instance.getBoardLocation()?.world)) {
                 player.getArmorStandData().spawnAll(player)
             } else {
