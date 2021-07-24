@@ -85,7 +85,7 @@ object InternalUtil {
             }.schedule(1).onCatch {
                 DailyRankingBoardPlugin.instance.logger.warning("Failed to eject packet handler from ${this.name}")
                 it.printStackTrace()
-            }.complete()
+            }
         }
     }
 

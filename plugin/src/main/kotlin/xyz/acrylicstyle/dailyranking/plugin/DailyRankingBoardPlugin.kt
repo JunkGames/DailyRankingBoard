@@ -348,9 +348,8 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
                             val loc = context.source.h().bukkitEntity.location.clone();
                             {
                                 config["lobby_board_location"] = loc.addY(2.8)
-                                println(config.saveToString())
                                 saveConfig()
-                            }.runOnMain().complete()
+                            }.runOnMain()
                             PlayerArmorStandData.refreshAll()
                             context.source.bukkitSender.sendMessage("${ChatColor.GREEN}ボードの場所を設定しました。")
                             context.source.bukkitSender.sendMessage(loc.serialize().stringify())
