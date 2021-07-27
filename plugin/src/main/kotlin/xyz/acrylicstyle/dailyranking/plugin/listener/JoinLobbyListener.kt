@@ -22,7 +22,9 @@ object JoinLobbyListener: EventListener2<PlayerJoinEvent, PlayerChangedWorldEven
         {
             if (inject) player.injectPacketHandler()
             if (player.isInWorld(DailyRankingBoardPlugin.instance.getBoardLocation()?.world)) {
-                player.getArmorStandData().spawnAll(player)
+                val data = player.getArmorStandData()
+                data.spawnAll(player)
+                data.updateText().then { data.updateAll(player) }
             } else {
                 player.getArmorStandData().destroyAll(player)
             }
