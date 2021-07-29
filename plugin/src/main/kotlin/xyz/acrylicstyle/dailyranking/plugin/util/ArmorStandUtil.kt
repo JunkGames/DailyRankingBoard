@@ -5,11 +5,13 @@ import org.bukkit.Location
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer
 import org.bukkit.entity.Player
+import xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin.Companion.debug
 
 object ArmorStandUtil {
     const val offset = 0.4
 
     fun createHologram(location: Location, text: String?): EntityArmorStand {
+        debug("Creating hologram with text '$text' at $location", 2)
         val worldServer = (location.world!! as CraftWorld).handle
         val armorStand = EntityArmorStand(worldServer, location.x, location.y, location.z)
         armorStand.isInvisible = true

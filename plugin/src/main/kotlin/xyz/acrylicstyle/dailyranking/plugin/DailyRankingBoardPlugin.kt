@@ -44,12 +44,26 @@ import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
 import java.util.logging.Logger
+import kotlin.math.max
+import kotlin.math.min
 
 @Suppress("unused")
 class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
     companion object {
         lateinit var instance: DailyRankingBoardPlugin
-        const val DEBUG = false
+
+        // Range: 0 - 99999
+        //     0: off
+        //     1: on
+        //     2: + show noisy debug messages
+        // 99999: + dump stacktrace with debug message
+        var debugLevel = 0
+
+        fun debug(message: String, minLevel: Int = 1) {
+            if (debugLevel < minLevel) return
+            instance.logger.info(message)
+            if (debugLevel >= 99999) Throwable("Debug").printStackTrace()
+        }
     }
 
     init {
@@ -67,13 +81,14 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
 
     override fun onEnable() {
         if (InternalUtil.isReload()) error("Reload detected. Please restart the server.\nLearn more why you should never reload the plugin: https://madelinemiller.dev/blog/problem-with-reload/")
+        debugLevel = max(0, min(99999, config.getInt("debugLevel", 0)))
         GameConfigurationFile.loadAll()
         Bukkit.getServicesManager().register(DailyRankingBoardAPI::class.java, this, this, ServicePriority.Normal)
         listeners.forEach { server.pluginManager.registerEvents(it, this) }
         registerCommands()
         preloadClasses()
         registerPacketHandlers()
-        if (DEBUG && InternalUtil.isPaper()) {
+        if (debugLevel >= 9999 && InternalUtil.isPaper()) {
             @Suppress("UNCHECKED_CAST")
             server.pluginManager.registerEvent(
                 Class.forName("com.destroystokyo.paper.event.server.ServerExceptionEvent") as Class<out Event>,
@@ -147,6 +162,16 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
         val node = getDispatcher().register(
             literal("dailyranking")
                 .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.command") }
+                .then(literal("debug")
+                    .then(argument("level", IntegerArgumentType.integer(0, 99999))
+                        .executes { context ->
+                            val level = IntegerArgumentType.getInteger(context, "level")
+                            debugLevel = level
+                            config["debugLevel"] = level
+                            return@executes 0
+                        }
+                    )
+                )
                 .then(literal("games")
                     .then(literal("add")
                         .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.games.add") }

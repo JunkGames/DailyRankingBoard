@@ -6,6 +6,7 @@ import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import util.promise.rewrite.Promise
 import xyz.acrylicstyle.dailyranking.api.util.Util.or
+import xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin.Companion.debug
 import xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin.Companion.instance
 import xyz.acrylicstyle.dailyranking.plugin.game.GameManager
 import xyz.acrylicstyle.dailyranking.plugin.listener.JoinLobbyListener
@@ -89,11 +90,14 @@ class PlayerArmorStandData(private val uuid: UUID) {
         leaderboardEntries.forEach { it.getUpdatePacket().sendTo(player) }
     }
 
-    fun updateText() = Promise.create<Unit> { context ->
-        if (GameManager.getAvailableGames().isEmpty()) return@create context.resolve()
-        val registeredGame = GameManager.getAvailableGames().getOrNull(currentGameIndex) ?: return@create context.resolve()
-        if (registeredGame.maps.isEmpty()) return@create context.resolve()
-        val map = registeredGame.maps.getOrNull(currentMapIndex) ?: return@create context.resolve()
+    fun updateText() = Promise.create<Long> { context ->
+        context.resolve(System.currentTimeMillis())
+    }.thenDo {
+        if (GameManager.getAvailableGames().isEmpty()) return@thenDo
+        val registeredGame =
+            GameManager.getAvailableGames().getOrNull(currentGameIndex) ?: return@thenDo
+        if (registeredGame.maps.isEmpty()) return@thenDo
+        val map = registeredGame.maps.getOrNull(currentMapIndex) ?: return@thenDo
         leaderboardGameCurrent.setText("${ChatColor.GOLD}ゲーム: ${ChatColor.BOLD}${registeredGame.game.name}")
         leaderboardMapCurrent.setText("${ChatColor.GOLD}マップ: ${ChatColor.BOLD}${map.name}")
         leaderboardEntriesCurrentMap.setText("${ChatColor.GRAY}${registeredGame.game.name} ${ChatColor.WHITE}- ${ChatColor.GRAY}${map.name}")
@@ -105,7 +109,13 @@ class PlayerArmorStandData(private val uuid: UUID) {
                     return@let
                 }
                 MojangAPI.getName(entry.key).then { name ->
-                    leaderboardEntries[i].setText("${ChatColor.YELLOW}${i + 1}. ${ChatColor.WHITE}$name ${ChatColor.GRAY}- ${ChatColor.YELLOW}${registeredGame.game.getValueToStringFunction(entry.value)}")
+                    leaderboardEntries[i].setText(
+                        "${ChatColor.YELLOW}${i + 1}. ${ChatColor.WHITE}$name ${ChatColor.GRAY}- ${ChatColor.YELLOW}${
+                            registeredGame.game.getValueToStringFunction(
+                                entry.value
+                            )
+                        }"
+                    )
                 }.onCatch { throwable ->
                     instance.logger.warning("Could not get the player name of ${entry.key}")
                     throwable.printStackTrace()
@@ -118,14 +128,22 @@ class PlayerArmorStandData(private val uuid: UUID) {
                     leaderboardEntries[10].setText("")
                 } else {
                     val rank = entries.indexOfFirst { entry -> entry.key == uuid } + 1
-                    leaderboardEntries[10].setText("${ChatColor.YELLOW}${ChatColor.BOLD}$rank. ${ChatColor.WHITE}${ChatColor.BOLD}$name ${ChatColor.GRAY}- ${ChatColor.YELLOW}${ChatColor.BOLD}${registeredGame.game.getValueToStringFunction(value)}")
+                    leaderboardEntries[10].setText(
+                        "${ChatColor.YELLOW}${ChatColor.BOLD}$rank. ${ChatColor.WHITE}${ChatColor.BOLD}$name ${ChatColor.GRAY}- ${ChatColor.YELLOW}${ChatColor.BOLD}${
+                            registeredGame.game.getValueToStringFunction(
+                                value
+                            )
+                        }"
+                    )
                 }
             }.onCatch { throwable ->
                 instance.logger.warning("Could not get the player name of $uuid")
                 throwable.printStackTrace()
             }.complete()
         }
-        context.resolve()
+    }.thenDo { start ->
+        val time = System.currentTimeMillis() - start
+        debug("PlayerArmorStandData#updateText took $time ms")
     }
 
     init {

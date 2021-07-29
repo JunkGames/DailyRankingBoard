@@ -4,6 +4,7 @@ import util.yaml.YamlConfiguration
 import util.yaml.YamlObject
 import xyz.acrylicstyle.dailyranking.api.game.RegisteredGame
 import xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin
+import xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin.Companion.debug
 import xyz.acrylicstyle.dailyranking.plugin.game.GameManager
 import xyz.acrylicstyle.dailyranking.plugin.game.SerializableGame
 import xyz.acrylicstyle.dailyranking.plugin.game.SerializableMap
@@ -24,6 +25,7 @@ object GameConfigurationFile {
     fun loadAll() {
         MAPS_DIR.listFiles { f -> f.extension == "yml" }?.forEach { file ->
             try {
+                debug("Loading map ${file.name}")
                 loadFromObject(YamlConfiguration(file).asObject())
             } catch (e: Exception) {
                 DailyRankingBoardPlugin.instance.logger.severe("Error loading game ${file.path}")
