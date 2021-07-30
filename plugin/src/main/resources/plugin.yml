@@ -12,7 +12,7 @@ commands:
 permissions:
   dailyrankingboard.admin:
     description: "Access to all commands"
-    default: false
+    default: op
     children:
       - dailyrankingboard.command
       - dailyrankingboard.games.add
@@ -26,34 +26,35 @@ permissions:
       - dailyrankingboard.maps.leaderboard.add
       - dailyrankingboard.maps.leaderboard.remove
   dailyrankingboard.command:
+    default: op
     description: "A base permission needed to execute the command"
   dailyrankingboard.games.add:
-    default: false
+    default: op
     description: "Permission to add a game"
   dailyrankingboard.games.remove:
-    default: false
+    default: op
     description: "Permission to remove a game"
   dailyrankingboard.games.rename:
-    default: false
+    default: op
     description: "Permission to rename a game"
   dailyrankingboard.games.setformat:
-    default: false
+    default: op
     description: "Permission to rename a game"
   dailyrankingboard.maps.add:
-    default: false
+    default: op
     description: "Permission to add a map"
   dailyrankingboard.maps.remove:
-    default: false
+    default: op
     description: "Permission to remove a map"
   dailyrankingboard.maps.rename:
-    default: false
+    default: op
     description: "Permission to set format of leaderboard entry"
   dailyrankingboard.maps.leaderboard.resetall:
-    default: false
+    default: op
     description: "Permission to remove all leaderboard entries in map"
   dailyrankingboard.maps.leaderboard.add:
-    default: false
+    default: op
     description: "Permission to add a leaderboard entry"
   dailyrankingboard.maps.leaderboard.remove:
-    default: false
+    default: op
     description: "Permission to remove a leaderboard entry"

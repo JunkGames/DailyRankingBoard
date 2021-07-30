@@ -67,7 +67,8 @@ class CommandWrapper(
         }
     }
 
-    override fun testPermissionSilent(target: CommandSender): Boolean = target.hasPermission("dailyrankingboard.admin")
+    override fun testPermissionSilent(target: CommandSender): Boolean =
+        target is ConsoleCommandSender || target.hasPermission("dailyrankingboard.command")
 
     init {
         permission = "dailyrankingboard.command"
