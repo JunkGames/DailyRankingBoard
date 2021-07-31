@@ -39,6 +39,7 @@ import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.runOnMain
 import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.schedule
 import xyz.acrylicstyle.dailyranking.plugin.util.PlayerArmorStandData
 import xyz.acrylicstyle.mcutil.mojang.MojangAPI
+import java.io.File
 import java.time.LocalDateTime
 import java.util.Timer
 import java.util.TimerTask
@@ -204,6 +205,20 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
                                     context.source.sendFailureMessage(ChatComponentText("${ChatColor.RED}削除できないゲームです。"))
                                 } else {
                                     removeGame(game.game)
+                                    context.source.sendMessage(ChatComponentText("${ChatColor.GREEN}ゲーム「${ChatColor.YELLOW}${game.name}${ChatColor.GREEN}」(ID: ${game.id})を削除しました。"), true)
+                                }
+                                return@executes 0
+                            }
+                        )
+                        .then(literal("delete")
+                            .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.games.delete") }
+                            .executes { context ->
+                                val game = GameArgument.get(context, "game")
+                                if (game.game !is SerializableGame) {
+                                    context.source.sendFailureMessage(ChatComponentText("${ChatColor.RED}削除できないゲームです。"))
+                                } else {
+                                    removeGame(game.game)
+                                    File(GameConfigurationFile.GAMES_DIR, "games/${game.id}.yml").delete()
                                     context.source.sendMessage(ChatComponentText("${ChatColor.GREEN}ゲーム「${ChatColor.YELLOW}${game.name}${ChatColor.GREEN}」(ID: ${game.id})を削除しました。"), true)
                                 }
                                 return@executes 0

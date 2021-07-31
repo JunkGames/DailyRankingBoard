@@ -11,21 +11,21 @@ import xyz.acrylicstyle.dailyranking.plugin.game.SerializableMap
 import java.io.File
 
 object GameConfigurationFile {
-    private val MAPS_DIR = File(DailyRankingBoardPlugin.instance.dataFolder, "maps")
+    val GAMES_DIR = File(DailyRankingBoardPlugin.instance.dataFolder, "games")
 
     init {
-        if (MAPS_DIR.exists() && MAPS_DIR.isFile) {
-            error("${MAPS_DIR.absolutePath} exists but is a file. Please delete the file and try again.")
+        if (GAMES_DIR.exists() && GAMES_DIR.isFile) {
+            error("${GAMES_DIR.absolutePath} exists but is a file. Please delete the file and try again.")
         }
-        if (!MAPS_DIR.exists() && !MAPS_DIR.mkdirs()) {
-            error("Failed to create maps directory. Please check for file permissions.")
+        if (!GAMES_DIR.exists() && !GAMES_DIR.mkdirs()) {
+            error("Failed to create games directory. Please check for file permissions.")
         }
     }
 
     fun loadAll() {
-        MAPS_DIR.listFiles { f -> f.extension == "yml" }?.forEach { file ->
+        GAMES_DIR.listFiles { f -> f.extension == "yml" }?.forEach { file ->
             try {
-                debug("Loading map ${file.name}")
+                debug("Loading game ${file.name}")
                 loadFromObject(YamlConfiguration(file).asObject())
             } catch (e: Exception) {
                 DailyRankingBoardPlugin.instance.logger.severe("Error loading game ${file.path}")
@@ -53,7 +53,7 @@ object GameConfigurationFile {
                 return@forEach
             }
             try {
-                obj.save(File(MAPS_DIR, "${game.id}.yml"))
+                obj.save(File(GAMES_DIR, "${game.id}.yml"))
             } catch (e: Exception) {
                 DailyRankingBoardPlugin.instance.logger.severe("Error saving game ${game.id}")
                 DailyRankingBoardPlugin.instance.logger.severe("File contents:\n${obj.dump()}")

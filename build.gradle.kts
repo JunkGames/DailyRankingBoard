@@ -1,9 +1,9 @@
 group = "xyz.acrylicstyle.dailyrankingboard"
-version = "1.1.7"
+version = "1.1.8"
 
 plugins {
     java
-    kotlin("jvm") version "1.5.20"
+    kotlin("jvm") version "1.5.21"
     id("com.github.johnrengelman.shadow") version "6.0.0"
     `maven-publish`
 }

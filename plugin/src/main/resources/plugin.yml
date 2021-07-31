@@ -1,7 +1,7 @@
 name: DailyRankingBoard
 main: xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin
 api-version: 1.13
-version: 1.1.6
+version: 1.1.8
 load: POSTWORLD
 softdepend:
   - Multiverse-Core
@@ -34,6 +34,9 @@ permissions:
   dailyrankingboard.games.remove:
     default: op
     description: "Permission to remove a game"
+  dailyrankingboard.games.delete:
+    default: op
+    description: "Permission to delete a game"
   dailyrankingboard.games.rename:
     default: op
     description: "Permission to rename a game"
