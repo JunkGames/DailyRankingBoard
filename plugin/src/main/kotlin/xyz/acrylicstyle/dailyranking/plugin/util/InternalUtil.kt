@@ -113,6 +113,11 @@ object InternalUtil {
 
     fun Player.getArmorStandData() = armorStandData[this.uniqueId]
 
+    fun Player.unregisterArmorStandData() {
+        val data = armorStandData.remove(this.uniqueId)
+        if (this.isOnline) data?.destroyAll(this)
+    }
+
     fun Player.isInWorld(world: World?): Boolean {
         if (world == null) return false
         return this.world.name == world.name
