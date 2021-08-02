@@ -8,6 +8,7 @@ import util.promise.rewrite.Promise
 import xyz.acrylicstyle.dailyranking.api.util.Util.or
 import xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin.Companion.debug
 import xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin.Companion.instance
+import xyz.acrylicstyle.dailyranking.plugin.configuration.UserCacheFile
 import xyz.acrylicstyle.dailyranking.plugin.game.GameManager
 import xyz.acrylicstyle.dailyranking.plugin.listener.JoinLobbyListener
 import xyz.acrylicstyle.dailyranking.plugin.util.ArmorStandUtil.destroy
@@ -108,38 +109,42 @@ class PlayerArmorStandData(private val uuid: UUID) {
                     leaderboardEntries[i].setText("${ChatColor.YELLOW}${i + 1}. ${ChatColor.GRAY}...")
                     return@let
                 }
-                MojangAPI.getName(entry.key).then { name ->
-                    leaderboardEntries[i].setText(
-                        "${ChatColor.YELLOW}${i + 1}. ${ChatColor.WHITE}$name ${ChatColor.GRAY}- ${ChatColor.YELLOW}${
-                            registeredGame.game.getValueToStringFunction(
-                                entry.value
-                            )
-                        }"
-                    )
-                }.onCatch { throwable ->
-                    instance.logger.warning("Could not get the player name of ${entry.key}")
-                    throwable.printStackTrace()
-                }.complete()
+                Promise.resolve(UserCacheFile[entry.key])
+                    .then { it ?: MojangAPI.getName(entry.key).complete() }
+                    .then { name ->
+                        leaderboardEntries[i].setText(
+                            "${ChatColor.YELLOW}${i + 1}. ${ChatColor.WHITE}$name ${ChatColor.GRAY}- ${ChatColor.YELLOW}${
+                                registeredGame.game.getValueToStringFunction(
+                                    entry.value
+                                )
+                            }"
+                        )
+                    }.onCatch { throwable ->
+                        instance.logger.warning("Could not get the player name of ${entry.key}")
+                        throwable.printStackTrace()
+                    }.complete()
             }
         }
         map.getLeaderboardEntries()[uuid].let { value ->
-            MojangAPI.getName(uuid).then { name ->
-                if (value == null) {
-                    leaderboardEntries[10].setText("")
-                } else {
-                    val rank = entries.indexOfFirst { entry -> entry.key == uuid } + 1
-                    leaderboardEntries[10].setText(
-                        "${ChatColor.YELLOW}${ChatColor.BOLD}$rank. ${ChatColor.WHITE}${ChatColor.BOLD}$name ${ChatColor.GRAY}- ${ChatColor.YELLOW}${ChatColor.BOLD}${
-                            registeredGame.game.getValueToStringFunction(
-                                value
-                            )
-                        }"
-                    )
-                }
-            }.onCatch { throwable ->
-                instance.logger.warning("Could not get the player name of $uuid")
-                throwable.printStackTrace()
-            }.complete()
+            Promise.resolve(UserCacheFile[uuid])
+                .then { it ?: MojangAPI.getName(uuid).complete() }
+                .then { name ->
+                    if (value == null) {
+                        leaderboardEntries[10].setText("")
+                    } else {
+                        val rank = entries.indexOfFirst { entry -> entry.key == uuid } + 1
+                        leaderboardEntries[10].setText(
+                            "${ChatColor.YELLOW}${ChatColor.BOLD}$rank. ${ChatColor.WHITE}${ChatColor.BOLD}$name ${ChatColor.GRAY}- ${ChatColor.YELLOW}${ChatColor.BOLD}${
+                                registeredGame.game.getValueToStringFunction(
+                                    value
+                                )
+                            }"
+                        )
+                    }
+                }.onCatch { throwable ->
+                    instance.logger.warning("Could not get the player name of $uuid")
+                    throwable.printStackTrace()
+                }.complete()
         }
     }.thenDo { start ->
         val time = System.currentTimeMillis() - start

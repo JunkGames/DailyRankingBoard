@@ -98,8 +98,11 @@ object InternalUtil {
             // for debugging
             // entities.forEach { println("${loc2.x}, ${loc2.y}, ${loc2.z}, distance: " + it.toLocation().addY(1.35).distance(loc2)) }
             // TODO: check world?
-            entities.filter { it.toLocation().addY(1.35).distance(loc2) < 0.2 }.minByOrNull { it.toLocation().addY(1.35).distance(loc2) }?.let { return it }
-        }
+            entities
+                .filter { it.world.world.name == loc.world?.name }
+                .filter { it.toLocation().addY(1.35).distance(loc2) < 0.2 }
+                .minByOrNull { it.toLocation().addY(1.35).distance(loc2) }
+                ?.let { return it }        }
         return null
     }
 

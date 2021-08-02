@@ -22,6 +22,7 @@ import xyz.acrylicstyle.dailyranking.api.util.Util.stringify
 import xyz.acrylicstyle.dailyranking.plugin.argument.GameArgument
 import xyz.acrylicstyle.dailyranking.plugin.argument.MapArgument
 import xyz.acrylicstyle.dailyranking.plugin.configuration.GameConfigurationFile
+import xyz.acrylicstyle.dailyranking.plugin.configuration.UserCacheFile
 import xyz.acrylicstyle.dailyranking.plugin.game.GameManager
 import xyz.acrylicstyle.dailyranking.plugin.game.SerializableGame
 import xyz.acrylicstyle.dailyranking.plugin.game.SerializableMap
@@ -83,6 +84,7 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
     override fun onEnable() {
         if (InternalUtil.isReload()) error("Reload detected. Please restart the server.\nLearn more why you should never reload the plugin: https://madelinemiller.dev/blog/problem-with-reload/")
         debugLevel = max(0, min(99999, config.getInt("debugLevel", 0)))
+        UserCacheFile.load()
         GameConfigurationFile.loadAll()
         Bukkit.getServicesManager().register(DailyRankingBoardAPI::class.java, this, this, ServicePriority.Normal)
         listeners.forEach { server.pluginManager.registerEvents(it, this) }
@@ -121,6 +123,8 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
         GameManager.getGames().forEach {
             it.maps.forEach { map -> map.clearLeaderboardEntries() }
         }
+        UserCacheFile.clear()
+        UserCacheFile.write()
     }
 
     override fun onDisable() {
