@@ -7,9 +7,9 @@ import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
-import net.minecraft.server.v1_16_R3.ArgumentEntity
 import net.minecraft.server.v1_16_R3.ChatComponentText
 import net.minecraft.server.v1_16_R3.CommandListenerWrapper
+import net.minecraft.server.v1_16_R3.ICompletionProvider
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.craftbukkit.v1_16_R3.CraftServer
@@ -39,7 +39,6 @@ import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.getArmorStandData
 import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.runOnMain
 import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.schedule
 import xyz.acrylicstyle.dailyranking.plugin.util.PlayerArmorStandData
-import xyz.acrylicstyle.mcutil.mojang.MojangAPI
 import java.io.File
 import java.time.LocalDateTime
 import java.util.Timer
@@ -344,20 +343,27 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
                                     )
                                     .then(literal("add")
                                         .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.maps.leaderboard.add") }
-                                        .then(argument("player", ArgumentEntity.c())
+                                        .then(argument("player", StringArgumentType.word())
+                                            .suggests { _, builder -> ICompletionProvider.b(UserCacheFile.getUsernames(), builder) }
                                             .then(argument("value", IntegerArgumentType.integer())
                                                 .executes { context ->
                                                     val game = GameArgument.get(context, "game")
                                                     val map = MapArgument.get(game, context, "map")
-                                                    val player = ArgumentEntity.e(context, "player")
+                                                    val id = StringArgumentType.getString(context, "player")
                                                     val value = IntegerArgumentType.getInteger(context, "value")
-                                                    val result = map.addLeaderboardEntry(player.uniqueID, value)
-                                                    if (result == -1) {
-                                                        context.source.sendFailureMessage(ChatComponentText("このマップは操作できません。"))
+                                                    val uuid = UserCacheFile.getUUIDByName(id)
+                                                    if (uuid == null) {
+                                                        context.source.sendFailureMessage(ChatComponentText("プレイヤーが見つかりません"))
                                                     } else {
-                                                        refreshLeaderboard()
+                                                        val result = map.addLeaderboardEntry(uuid, value)
+                                                        if (result == -1) {
+                                                            context.source.sendFailureMessage(ChatComponentText("このマップは操作できません。"))
+                                                        } else {
+                                                            refreshLeaderboard()
+                                                        }
+                                                        return@executes result
                                                     }
-                                                    return@executes result
+                                                    return@executes 0
                                                 }
                                             )
                                         )
@@ -365,18 +371,19 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
                                     .then(literal("remove")
                                         .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.maps.leaderboard.remove") }
                                         .then(argument("player", StringArgumentType.word())
+                                            .suggests { _, builder -> ICompletionProvider.b(UserCacheFile.getUsernames(), builder) }
                                             .executes { context ->
                                                 val game = GameArgument.get(context, "game")
                                                 val map = MapArgument.get(game, context, "map")
                                                 val id = StringArgumentType.getString(context, "player")
-                                                MojangAPI.getUniqueId(id)
-                                                    .then { uuid ->
-                                                        map.removeLeaderboardEntry(uuid)
-                                                        refreshLeaderboard()
-                                                        context.source.sendMessage(ChatComponentText("${ChatColor.GOLD}${id}${ChatColor.GREEN}の記録をすべて削除しました。"), true)
-                                                    }.onCatch {
-                                                        context.source.sendFailureMessage(ChatComponentText("プレイヤーが見つかりません"))
-                                                    }
+                                                val uuid = UserCacheFile.getUUIDByName(id)
+                                                if (uuid == null) {
+                                                    context.source.sendFailureMessage(ChatComponentText("プレイヤーが見つかりません"))
+                                                } else {
+                                                    map.removeLeaderboardEntry(uuid)
+                                                    refreshLeaderboard()
+                                                    context.source.sendMessage(ChatComponentText("${ChatColor.GOLD}${id}${ChatColor.GREEN}の記録をすべて削除しました。"), true)
+                                                }
                                                 return@executes 0
                                             }
                                         )
