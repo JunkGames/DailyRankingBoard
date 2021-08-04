@@ -127,6 +127,7 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
     }
 
     override fun onDisable() {
+        UserCacheFile.write()
         GameConfigurationFile.saveAll()
         Bukkit.getOnlinePlayers().forEach {
             it.getArmorStandData().destroyAll(it)
