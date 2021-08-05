@@ -13,10 +13,14 @@ interface Game: MapSerializable {
      */
     val name: String
 
+    val order: SortOrder
+        get() = SortOrder.ASC
+
     fun getValueToStringFunction(value: Int): String = value.toString()
 
     override fun getAsMap(): Map<String, Any> = mapOf(
         "id" to id,
         "name" to name,
+        "order" to order.name,
     )
 }

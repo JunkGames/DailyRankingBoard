@@ -1,7 +1,7 @@
 name: DailyRankingBoard
 main: xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin
 api-version: 1.13
-version: 1.1.12
+version: 2.0.0
 load: POSTWORLD
 softdepend:
   - Multiverse-Core
@@ -19,6 +19,7 @@ permissions:
       - dailyrankingboard.games.remove
       - dailyrankingboard.games.rename
       - dailyrankingboard.games.setformat
+      - dailyrankingboard.games.setorder
       - dailyrankingboard.maps.add
       - dailyrankingboard.maps.remove
       - dailyrankingboard.maps.rename
@@ -42,7 +43,10 @@ permissions:
     description: "Permission to rename a game"
   dailyrankingboard.games.setformat:
     default: op
-    description: "Permission to rename a game"
+    description: "Permission to set the format of leaderboard"
+  dailyrankingboard.games.setorder:
+    default: op
+    description: "Permission to change the order of leaderboard"
   dailyrankingboard.maps.add:
     default: op
     description: "Permission to add a map"

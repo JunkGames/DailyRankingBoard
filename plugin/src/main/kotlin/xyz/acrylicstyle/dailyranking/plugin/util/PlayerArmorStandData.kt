@@ -102,7 +102,7 @@ class PlayerArmorStandData(private val uuid: UUID) {
         leaderboardGameCurrent.setText("${ChatColor.GOLD}ゲーム: ${ChatColor.BOLD}${registeredGame.game.name}")
         leaderboardMapCurrent.setText("${ChatColor.GOLD}マップ: ${ChatColor.BOLD}${map.name}")
         leaderboardEntriesCurrentMap.setText("${ChatColor.GRAY}${registeredGame.game.name} ${ChatColor.WHITE}- ${ChatColor.GRAY}${map.name}")
-        val entries = map.getLeaderboardEntries().entries.sortedBy { it.value }
+        val entries = map.getLeaderboardEntries().entries.sortedWith(registeredGame.game.order.sorter)
         for (i in 0..9) {
             entries.getOrNull(i).let { entry ->
                 if (entry == null) {

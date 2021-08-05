@@ -23,5 +23,5 @@ object GameArgument {
         }
 
     fun fillSuggestions(builder: SuggestionsBuilder): CompletableFuture<Suggestions> =
-        ICompletionProvider.b(GameManager.getGames().filter { it.game is SerializableGame }.map { it.id }, builder)
+        ICompletionProvider.b(GameManager.getGames().map { it.id }, builder)
 }

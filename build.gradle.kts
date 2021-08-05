@@ -1,5 +1,5 @@
 group = "xyz.acrylicstyle.dailyrankingboard"
-version = "1.1.12"
+version = "2.0.0"
 
 plugins {
     java

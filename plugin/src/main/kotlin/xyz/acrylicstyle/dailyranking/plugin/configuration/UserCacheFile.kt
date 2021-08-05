@@ -30,6 +30,7 @@ object UserCacheFile {
             DailyRankingBoardPlugin.instance.logger.warning("Failed to load user_cache.yml")
             e.printStackTrace()
         }
+        DailyRankingBoardPlugin.instance.logger.info("Loaded ${cache.rawData.size} entries from user_cache.yml")
     }
 
     fun write() {

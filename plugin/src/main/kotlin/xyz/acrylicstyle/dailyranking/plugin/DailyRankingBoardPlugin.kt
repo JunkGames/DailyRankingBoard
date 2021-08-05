@@ -21,6 +21,7 @@ import xyz.acrylicstyle.dailyranking.api.DailyRankingBoardAPI
 import xyz.acrylicstyle.dailyranking.api.util.Util.stringify
 import xyz.acrylicstyle.dailyranking.plugin.argument.GameArgument
 import xyz.acrylicstyle.dailyranking.plugin.argument.MapArgument
+import xyz.acrylicstyle.dailyranking.plugin.argument.OrderArgument
 import xyz.acrylicstyle.dailyranking.plugin.configuration.GameConfigurationFile
 import xyz.acrylicstyle.dailyranking.plugin.configuration.UserCacheFile
 import xyz.acrylicstyle.dailyranking.plugin.game.GameManager
@@ -263,6 +264,24 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
                                         context.source.sendMessage(ChatComponentText("${ChatColor.GREEN}デイリーランキングボードの表示形式を変更しました。"), true)
                                         context.source.sendMessage(ChatComponentText("${ChatColor.YELLOW}表示例: ${ChatColor.RESET}${String.format(format, 123456789)}"), true)
                                         context.source.sendMessage(ChatComponentText("${ChatColor.YELLOW}初期設定に戻す場合は${ChatColor.AQUA}/dr game ${game.id} setformat \"%d\"${ChatColor.YELLOW}と入力してください。"), true)
+                                    }
+                                    return@executes 0
+                                }
+                            )
+                        )
+                        .then(literal("setorder")
+                            .requires { s -> s.bukkitSender.hasPermission("dailyrankingboard.games.setorder") }
+                            .then(argument("order", OrderArgument.order())
+                                .suggests { _, builder -> OrderArgument.fillSuggestions(builder) }
+                                .executes { context ->
+                                    val game = GameArgument.get(context, "game")
+                                    if (game.game !is SerializableGame) {
+                                        context.source.sendFailureMessage(ChatComponentText("変更できないゲームです。"))
+                                    } else {
+                                        val serializableGame = game.game as SerializableGame
+                                        val order = OrderArgument.get(context, "order")
+                                        serializableGame.order = order
+                                        context.source.sendMessage(ChatComponentText("${ChatColor.GREEN}ランキングボードの値の表示順序を変更しました。"), true)
                                     }
                                     return@executes 0
                                 }

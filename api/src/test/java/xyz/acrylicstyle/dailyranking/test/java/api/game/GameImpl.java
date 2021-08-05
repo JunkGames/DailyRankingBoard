@@ -2,6 +2,7 @@ package xyz.acrylicstyle.dailyranking.test.java.api.game;
 
 import org.jetbrains.annotations.NotNull;
 import xyz.acrylicstyle.dailyranking.api.game.Game;
+import xyz.acrylicstyle.dailyranking.api.game.SortOrder;
 
 import java.util.Map;
 
@@ -28,5 +29,11 @@ public class GameImpl implements Game {
     @Override
     public String getValueToStringFunction(int value) {
         return Game.super.getValueToStringFunction(value);
+    }
+
+    @NotNull
+    @Override
+    public SortOrder getOrder() {
+        return Game.super.getOrder();
     }
 }
