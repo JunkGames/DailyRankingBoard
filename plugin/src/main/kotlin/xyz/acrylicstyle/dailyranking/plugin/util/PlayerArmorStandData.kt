@@ -1,6 +1,6 @@
 package xyz.acrylicstyle.dailyranking.plugin.util
 
-import net.minecraft.server.v1_16_R3.EntityArmorStand
+import net.minecraft.world.entity.decoration.EntityArmorStand
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player

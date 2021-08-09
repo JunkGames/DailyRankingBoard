@@ -5,7 +5,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("xyz.acrylicstyle:java-util-kotlin:0.15.4")
     implementation("xyz.acrylicstyle:minecraft-util:0.5.3")
-    compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }

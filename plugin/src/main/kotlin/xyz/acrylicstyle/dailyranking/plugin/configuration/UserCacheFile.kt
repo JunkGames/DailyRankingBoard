@@ -13,6 +13,7 @@ object UserCacheFile {
 
     private fun checkFile() {
         if (!file.exists()) {
+            DailyRankingBoardPlugin.instance.dataFolder.mkdir()
             if (!file.createNewFile()) {
                 DailyRankingBoardPlugin.instance.logger.warning("Failed to create user_cache.yml")
             } else {

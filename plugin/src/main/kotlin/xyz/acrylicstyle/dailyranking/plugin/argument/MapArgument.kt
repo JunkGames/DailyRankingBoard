@@ -5,8 +5,8 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import net.minecraft.server.v1_16_R3.ChatComponentText
-import net.minecraft.server.v1_16_R3.ICompletionProvider
+import net.minecraft.commands.ICompletionProvider
+import net.minecraft.network.chat.ChatComponentText
 import xyz.acrylicstyle.dailyranking.api.game.RegisteredGame
 import xyz.acrylicstyle.dailyranking.api.map.GameMap
 import xyz.acrylicstyle.dailyranking.plugin.game.SerializableMap

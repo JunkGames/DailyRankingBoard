@@ -1,15 +1,15 @@
 package xyz.acrylicstyle.dailyranking.plugin.util
 
 import net.blueberrymc.native_util.NativeUtil
-import net.minecraft.server.v1_16_R3.Entity
-import net.minecraft.server.v1_16_R3.MinecraftServer
-import net.minecraft.server.v1_16_R3.Packet
+import net.minecraft.network.protocol.Packet
+import net.minecraft.server.MinecraftServer
+import net.minecraft.world.entity.Entity
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.World
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import util.function.ThrowableConsumer
@@ -53,7 +53,7 @@ object InternalUtil {
         false
     }
 
-    private fun Player.getChannel() = (player as CraftPlayer).handle.playerConnection.networkManager.channel!!
+    private fun Player.getChannel() = (player as CraftPlayer).handle.b.a.k!!
 
     fun Player.injectPacketHandler() {
         val pipeline = this.getChannel().pipeline();
@@ -109,7 +109,7 @@ object InternalUtil {
     fun Location.addY(y: Double) = this.apply { this.y += y }
 
     fun Packet<*>.sendTo(vararg players: Player) {
-        players.map { (it as CraftPlayer).handle.playerConnection }.forEach { it.sendPacket(this) }
+        players.map { (it as CraftPlayer).handle.b }.forEach { it.sendPacket(this) }
     }
 
     private val armorStandData = KVMap<UUID, PlayerArmorStandData> { PlayerArmorStandData(it) }
@@ -155,7 +155,7 @@ object InternalUtil {
         }
     }
 
-    private fun getTicks() = NativeUtil.getInt(MinecraftServer::class.java.getDeclaredField("ticks"), (Bukkit.getServer() as CraftServer).server)
+    private fun getTicks() = NativeUtil.getInt(MinecraftServer::class.java.getDeclaredField("V"), (Bukkit.getServer() as CraftServer).server)
 
     fun isReload(): Boolean {
         if (Bukkit.getOnlinePlayers().isNotEmpty()) return true

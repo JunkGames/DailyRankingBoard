@@ -1,6 +1,6 @@
 package xyz.acrylicstyle.dailyranking.plugin.packet
 
-import net.minecraft.server.v1_16_R3.Packet
+import net.minecraft.network.protocol.Packet
 
 @FunctionalInterface
 interface OutgoingPacketHandler<T: Packet<*>> {

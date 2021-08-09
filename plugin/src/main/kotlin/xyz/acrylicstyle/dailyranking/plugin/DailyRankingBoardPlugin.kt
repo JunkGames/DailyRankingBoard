@@ -7,12 +7,12 @@ import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
-import net.minecraft.server.v1_16_R3.ChatComponentText
-import net.minecraft.server.v1_16_R3.CommandListenerWrapper
-import net.minecraft.server.v1_16_R3.ICompletionProvider
+import net.minecraft.commands.CommandListenerWrapper
+import net.minecraft.commands.ICompletionProvider
+import net.minecraft.network.chat.ChatComponentText
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.plugin.ServicePriority
@@ -146,8 +146,10 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
         "xyz.acrylicstyle.dailyranking.api.util.ReadonlyList".tryLoadClass()
         "xyz.acrylicstyle.dailyranking.api.util.SingletonReadonlyList".tryLoadClass()
         "xyz.acrylicstyle.dailyranking.api.util.SingletonIterator".tryLoadClass()
+        "xyz.acrylicstyle.dailyranking.api.util.SimpleReadonlyList".tryLoadClass()
         "xyz.acrylicstyle.dailyranking.plugin.libs.kotlin.Pair".tryLoadClass()
         "xyz.acrylicstyle.dailyranking.plugin.libs.kotlin.TuplesKt".tryLoadClass()
+        "xyz.acrylicstyle.dailyranking.plugin.libs.kotlin.jvm.internal.ArrayIteratorKt".tryLoadClass()
     }
 
     private fun String.tryLoadClass() {

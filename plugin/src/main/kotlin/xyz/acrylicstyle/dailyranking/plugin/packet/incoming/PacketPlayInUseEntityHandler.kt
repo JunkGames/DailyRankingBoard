@@ -1,7 +1,7 @@
 package xyz.acrylicstyle.dailyranking.plugin.packet.incoming
 
-import net.minecraft.server.v1_16_R3.EnumHand
-import net.minecraft.server.v1_16_R3.PacketPlayInUseEntity
+import net.minecraft.network.protocol.game.PacketPlayInUseEntity
+import util.reflect.Reflect
 import xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin
 import xyz.acrylicstyle.dailyranking.plugin.packet.IncomingPacket
 import xyz.acrylicstyle.dailyranking.plugin.packet.IncomingPacketHandler
@@ -13,7 +13,13 @@ import xyz.acrylicstyle.dailyranking.plugin.util.InternalUtil.updateData
 object PacketPlayInUseEntityHandler: IncomingPacketHandler<PacketPlayInUseEntity> {
     override fun handle(packet: IncomingPacket<PacketPlayInUseEntity>) {
         val player = packet.player
-        if ((packet.packet.b() == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT_AT || packet.packet.b() == PacketPlayInUseEntity.EnumEntityUseAction.ATTACK) && packet.packet.c() == EnumHand.MAIN_HAND) {
+        val ordinal = Reflect
+            .on(packet.packet)
+            .field<Any>("b")
+            .call<Any>("a")
+            .call<Int>("ordinal")
+            .get()
+        if (ordinal >= 1 && !packet.packet.b()) {
             if (!player.isInWorld(DailyRankingBoardPlugin.instance.getBoardLocation()?.world)) return
             val data = player.getArmorStandData()
             val entity = player.rayTraceEntity(

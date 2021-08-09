@@ -3,7 +3,7 @@ package xyz.acrylicstyle.dailyranking.plugin.packet
 import io.netty.channel.ChannelDuplexHandler
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelPromise
-import net.minecraft.server.v1_16_R3.Packet
+import net.minecraft.network.protocol.Packet
 import org.bukkit.entity.Player
 
 class DailyRankingBoardPacketHandler(private val player: Player): ChannelDuplexHandler() {
@@ -27,14 +27,24 @@ class DailyRankingBoardPacketHandler(private val player: Player): ChannelDuplexH
     @Suppress("UNCHECKED_CAST")
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
         val packet = IncomingPacket(player, msg as Packet<*>)
-        incomingPacketHandler[msg::class.java]?.forEach { (it as IncomingPacketHandler<Packet<*>>).handle(packet) }
+        try {
+            incomingPacketHandler[msg::class.java]?.forEach { (it as IncomingPacketHandler<Packet<*>>).handle(packet) }
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            throw e
+        }
         super.channelRead(ctx, msg)
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun write(ctx: ChannelHandlerContext, msg: Any, promise: ChannelPromise) {
         val packet = OutgoingPacket(player, msg as Packet<*>)
-        outgoingPacketHandler[msg::class.java]?.forEach { (it as OutgoingPacketHandler<Packet<*>>).handle(packet) }
+        try {
+            outgoingPacketHandler[msg::class.java]?.forEach { (it as OutgoingPacketHandler<Packet<*>>).handle(packet) }
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            throw e
+        }
         super.write(ctx, msg, promise)
     }
 }

@@ -6,8 +6,8 @@ dependencies {
     implementation("xyz.acrylicstyle:java-util-kotlin:0.15.4")
     implementation("xyz.acrylicstyle:minecraft-util:0.5.3")
     compileOnly("com.mojang:brigadier:1.0.18")
-    compileOnly("org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT")
-    testImplementation("org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot:1.17.1-R0.1-SNAPSHOT")
+    testImplementation("org.spigotmc:spigot:1.17.1-R0.1-SNAPSHOT")
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.2")
 }
 

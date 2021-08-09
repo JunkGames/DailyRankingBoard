@@ -1,9 +1,13 @@
 package xyz.acrylicstyle.dailyranking.plugin.util
 
-import net.minecraft.server.v1_16_R3.*
+import net.minecraft.network.chat.ChatComponentText
+import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy
+import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata
+import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity
+import net.minecraft.world.entity.decoration.EntityArmorStand
 import org.bukkit.Location
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
 import xyz.acrylicstyle.dailyranking.plugin.DailyRankingBoardPlugin.Companion.debug
 
@@ -25,7 +29,7 @@ object ArmorStandUtil {
     }
 
     fun EntityArmorStand.sendPacket(player: Player): EntityArmorStand {
-        (player as CraftPlayer).handle.playerConnection.apply {
+        (player as CraftPlayer).handle.b.apply {
             sendPacket(getSpawnPacket())
             sendPacket(getUpdatePacket())
         }
@@ -33,7 +37,7 @@ object ArmorStandUtil {
     }
 
     fun EntityArmorStand.destroy(player: Player): EntityArmorStand {
-        (player as CraftPlayer).handle.playerConnection.apply {
+        (player as CraftPlayer).handle.b.apply {
             sendPacket(getDestroyPacket())
         }
         return this
