@@ -19,6 +19,10 @@ object PacketPlayInUseEntityHandler: IncomingPacketHandler<PacketPlayInUseEntity
             .call<Any>("a")
             .call<Int>("ordinal")
             .get()
+        // ordinals:
+        // 0 = INTERACT
+        // 1 = ATTACK
+        // 2 = INTERACT_AT
         if (ordinal >= 1 && !packet.packet.b()) {
             if (!player.isInWorld(DailyRankingBoardPlugin.instance.getBoardLocation()?.world)) return
             val data = player.getArmorStandData()

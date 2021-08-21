@@ -28,7 +28,6 @@ import xyz.acrylicstyle.dailyranking.plugin.game.GameManager
 import xyz.acrylicstyle.dailyranking.plugin.game.SerializableGame
 import xyz.acrylicstyle.dailyranking.plugin.game.SerializableMap
 import xyz.acrylicstyle.dailyranking.plugin.listener.JoinLobbyListener
-import xyz.acrylicstyle.dailyranking.plugin.listener.LeaderboardListener
 import xyz.acrylicstyle.dailyranking.plugin.listener.ReregisterCommandsOnReloadListener
 import xyz.acrylicstyle.dailyranking.plugin.packet.DailyRankingBoardPacketHandler
 import xyz.acrylicstyle.dailyranking.plugin.packet.incoming.PacketPlayInUseEntityHandler
@@ -74,7 +73,6 @@ class DailyRankingBoardPlugin: JavaPlugin(), DailyRankingBoardAPIImpl {
 
     private val listeners = listOf(
         ReregisterCommandsOnReloadListener,
-        LeaderboardListener,
         JoinLobbyListener,
     )
 
