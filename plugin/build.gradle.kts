@@ -1,14 +1,9 @@
-group = parent!!.group
-version = parent!!.version
-
 dependencies {
-    implementation(project(":api"))
-    implementation("xyz.acrylicstyle:java-util-kotlin:0.15.4")
-    implementation("xyz.acrylicstyle:minecraft-util:0.5.3")
+    api(project(":api"))
     compileOnly("com.mojang:brigadier:1.0.18")
     compileOnly("org.spigotmc:spigot:1.17.1-R0.1-SNAPSHOT")
     testImplementation("org.spigotmc:spigot:1.17.1-R0.1-SNAPSHOT")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.7.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 }
 
 tasks {

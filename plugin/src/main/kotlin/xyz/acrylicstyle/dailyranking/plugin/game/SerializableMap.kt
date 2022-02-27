@@ -5,7 +5,7 @@ import xyz.acrylicstyle.dailyranking.api.map.GameMap
 import xyz.acrylicstyle.dailyranking.api.map.GameMap.UpdateFlag
 import java.util.UUID
 
-data class SerializableMap(override val id: String, override var name: String, val entries: MutableMap<UUID, Int>) : GameMap {
+data class SerializableMap(override val id: String, override var name: String, val entries: Map<UUID, Int>) : GameMap {
     override fun getLeaderboardEntries(): Map<UUID, Int> = entries
 
     companion object {

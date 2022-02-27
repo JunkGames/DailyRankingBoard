@@ -1,8 +1,7 @@
 package xyz.acrylicstyle.dailyranking.api.util
 
 import org.jetbrains.annotations.Contract
-import util.Collection
-import java.util.UUID
+import util.collection.Collection
 import java.util.function.Function
 
 class KVMap<K, V>(private val constructor: Function<K, V>) : Collection<K, V>() {

@@ -1,12 +1,10 @@
-group = parent!!.group
-version = parent!!.version
-
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("xyz.acrylicstyle:java-util-kotlin:0.15.4")
-    implementation("xyz.acrylicstyle:minecraft-util:0.5.3")
+    api("xyz.acrylicstyle.util:kotlin:0.16.6")
+    api("xyz.acrylicstyle.util:yaml:0.16.6")
+    api("xyz.acrylicstyle:minecraft-util:1.0.0")
     compileOnly("org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
